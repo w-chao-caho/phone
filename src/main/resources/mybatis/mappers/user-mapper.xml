@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.situ.phone.user.dao.UserDao">
+	<!-- 新增（注册） -->
+	<insert id="save" parameterType="User" useGeneratedKeys="true" keyColumn="ROW_ID" keyProperty="rowId">
+		INSERT INTO ph_user(
+		user_type,user_name,user_namber,user_pass,user_mobile,ACTIVE_FLAG,user_lock,user_lastlogin
+		,user_lasttime,create_by,create_time,update_by,update_time)
+		VALUES(#{userType},#{userName},#{userNamber},#{userPass},#{userMobile},#{activeFlag},#{userLock},
+		#{userLastLogin},#{userLastTime},#{createBy},#{createTime},#{updateBy},#{updateTime})
+	</insert>
+
+	<sql id="user_base_select">
+		SELECT row_id,user_type,user_name,user_namber,user_pass,user_mobile,user_lastlogin,user_lasttime,create_by,create_time,update_by,update_time FROM ph_user WHERE ACTIVE_FLAG=0
+	</sql>
+	<!-- 查询（登录） -->
+	<select id="find" resultType="User">
+		<include refid="user_base_select" />
+		AND user_lock=0 AND USER_NAMBER=#{userNamber} AND USER_PASS=#{userPass}
+	</select>
+	<!-- 查询（后台管理） -->
+	<select id="findAll" resultType="User">
+		SELECT row_id,user_type,user_name,user_namber,user_mobile,user_lock,user_lasttime FROM ph_user WHERE ACTIVE_FLAG=0 limit #{firstResult},#{maxResults}
+	</select>
+
+	<select id="get" resultType="User">
+		<include refid="user_base_select" />
+		AND row_id=#{rowId}
+	</select>
+	
+	<select id="getCount" resultType="java.lang.Integer">
+		SELECT COUNT(ROW_ID)FROM ph_user WHERE ACTIVE_FLAG =0
+	</select>
+
+	<update id="update" parameterType="User">
+		update ph_user
+		<set>
+			<if test="userName!=null">
+				user_name=#{userName},
+			</if>
+			<if test="userNamber!=null">
+				user_namber=#{userNamber},
+			</if>
+			<if test="userPass!=null">
+				user_pass=#{userPass},
+			</if>
+			<if test="userMobile!=null">
+				user_mobile=#{userMobile},
+			</if>
+			<if test="updateBy!=null">
+				update_by=#{updateBy},
+			</if>
+			<if test="updateTime!=null">
+				update_time=#{updateTime},
+			</if>
+		</set>
+		WHERE ROW_ID = #{rowId}
+	</update>
+
+<update id="delete" parameterType="User">
+update ph_user set ACTIVE_FLAG= 1 where row_id = #{rowId}
+</update>
+</mapper>
